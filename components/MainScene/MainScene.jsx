@@ -33,6 +33,7 @@ import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHel
 import styles from './MainScene.module.css'
 
 import NurbsObject from '../NurbsObject'
+import NurbsLine from '../NurbsLine'
 import Loader from '../Loader'
 
 // Shader stack
@@ -87,25 +88,23 @@ const Scene = () => {
   // texture.wrapS = texture.wrapT = THREE.RepeatWrapping
 
   useFrame(({ clock, mouse }) => {
-    // Torus
     // mesh.current.rotation.x = (Math.sin(clock.elapsedTime) * Math.PI) / 4
     // mesh.current.rotation.y = (Math.sin(clock.elapsedTime) * Math.PI) / 4
     // mesh.current.rotation.z = (Math.sin(clock.elapsedTime) * Math.PI) / 4
     // mesh.current.position.x = Math.sin(clock.elapsedTime)
     // mesh.current.position.z = Math.sin(clock.elapsedTime)
-
-    // nurbs
-    group.current.rotation.y += 0.02
-
+    // Lights
+    // group.current.rotation.y += 0.02
     // Update the shader
-    // mesh.current.material.uniforms.uTime.value = clock.getElapsedTime()
-    // mesh.current.material.uniforms.mouse.value = new THREE.Vector2(
-    //   mouse.x,
-    //   mouse.y
-    // )
+    mesh.current.material.uniforms.uTime.value = clock.getElapsedTime()
+    mesh.current.material.uniforms.mouse.value = new THREE.Vector2(
+      mouse.x,
+      mouse.y
+    )
   })
 
-  useEffect(() => void (spotLight.current.target = mesh.current), [scene])
+  // useEffect(() => void (spotLight.current.target = mesh.current), [scene])
+
   if (ENABLE_HELPERS) {
     useHelper(spotLight, THREE.SpotLightHelper, 'teal')
     useHelper(pointLight, THREE.PointLightHelper, 0.5, 'hotpink')
@@ -116,7 +115,7 @@ const Scene = () => {
 
   return (
     <>
-      <pointLight position={[-10, 0, -20]} color="lightblue" intensity={2.5} />
+      {/* <pointLight position={[-10, 0, -20]} color="lightblue" intensity={2.5} />
       <group ref={group}>
         <pointLight
           ref={pointLight}
@@ -131,15 +130,14 @@ const Scene = () => {
         ref={spotLight}
         angle={0.5}
         distance={20}
-      />
-      {/* <mesh ref={mesh} position={[0, 2, 0]} castShadow>
-        <torusGeometry attach="geometry" args={[3, 1, 100, 100]} />
-        <kineticTextMaterial
-          attach="material"
-          side={THREE.DoubleSide}
-          uTexture={texture}
-        />
-      </mesh> */}
+      /> */}
+      <ambientLight color={0x808080} />
+      <directionalLight color={0xffffff} intensity={1} />
+      <mesh scale={[100, 100, 100]} ref={mesh} position={[0, 2, 0]} castShadow>
+        <torusGeometry args={[3, 1, 100, 100]} />
+        <kineticTextMaterial side={THREE.DoubleSide} uTexture={texture} />
+      </mesh>
+      {/* <NurbsLine /> */}
       <NurbsObject />
       {/* <mesh rotation-x={-Math.PI / 2} receiveShadow>
         <planeBufferGeometry args={[100, 100]} attach="geometry" />
@@ -185,7 +183,7 @@ const MainScene = (props) => {
           gl.outputEncoding = THREE.sRGBEncoding
         }}
       >
-        <fog attach="fog" args={['floralwhite', 0, 40]} />
+        {/* <fog attach="fog" args={['floralwhite', 0, 40]} /> */}
         <Suspense fallback={null}>
           <Scene />
         </Suspense>

@@ -98,7 +98,7 @@ const NurbsObject = (props) => {
 
   useEffect(() => {
     nurbsGeometry.current.setFromPoints(nurbsCurve.getPoints(200))
-    nurbsLine.current.position.set(0, -1, 0)
+    nurbsLine.current.position.set(200, -100, 0)
     nurbsControlPointsGeometry.current.setFromPoints(nurbsCurve.controlPoints)
 
     object.current.position.set(0, 0, 0)
@@ -108,11 +108,18 @@ const NurbsObject = (props) => {
     // setWindowHalfX(window.innerWidth / 2)
   }, [nurbsGeometry, nurbsLine, nurbsControlPointsGeometry, geometry, object])
 
-  useFrame(() => {
-    // nurbsControlPointsLine.current.position.copy(nurbsLine.current.position)
+  useFrame(({ mouse, clock }) => {
+    nurbsControlPointsLine.current.position.copy(nurbsLine.current.position)
 
     group.current.rotation.y +=
       (targetRotation - group.current.rotation.y) * 0.05
+
+    // Update the shader
+    // object.current.material.uniforms.uTime.value = clock.getElapsedTime()
+    // object.current.material.uniforms.mouse.value = new THREE.Vector2(
+    //   mouse.x,
+    //   mouse.y
+    // )
   })
 
   // NURBS surface
@@ -137,10 +144,12 @@ const NurbsObject = (props) => {
       new THREE.Vector4(200, 200, 100, 1),
     ],
   ]
+
   const degree1 = 2
   const degree2 = 3
   const knots1 = [0, 0, 0, 1, 1, 1]
   const knots2 = [0, 0, 0, 0, 1, 1, 1, 1]
+
   const nurbsSurface = new NURBSSurface(
     degree1,
     degree2,
@@ -152,6 +161,9 @@ const NurbsObject = (props) => {
   const map = useTexture('/3d/textures/uv_grid_opengl.jpg')
   map.wrapS = map.wrapT = THREE.RepeatWrapping
   map.anisotropy = 16
+
+  // const texture = useTexture('/3d/textures/future-class-title.png')
+  // texture.minFilter = THREE.NearestFilter
 
   function getSurfacePoint(u, v, target) {
     return nurbsSurface.getPoint(u, v, target)
@@ -167,11 +179,11 @@ const NurbsObject = (props) => {
     >
       <line ref={nurbsLine}>
         <bufferGeometry ref={nurbsGeometry} />
-        <lineBasicMaterial color={0x333333} />
+        <lineBasicMaterial color={0x333333} transparent opacity={0} />
       </line>
       <line ref={nurbsControlPointsLine}>
         <bufferGeometry ref={nurbsControlPointsGeometry} />
-        <lineBasicMaterial color={0xff0000} transparent opacity={0.25} />
+        <lineBasicMaterial color={0xff0000} transparent opacity={0} />
       </line>
       <mesh ref={object}>
         <parametricBufferGeometry
@@ -179,6 +191,11 @@ const NurbsObject = (props) => {
           args={[getSurfacePoint, 20, 20]}
         />
         <meshLambertMaterial map={map} side={THREE.DoubleSide} />
+        {/* <kineticTextMaterial
+          attach="material"
+          side={THREE.DoubleSide}
+          uTexture={texture}
+        /> */}
       </mesh>
     </group>
   )
