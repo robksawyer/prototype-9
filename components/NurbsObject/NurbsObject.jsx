@@ -114,6 +114,8 @@ const NurbsObject = (props) => {
     group.current.rotation.y +=
       (targetRotation - group.current.rotation.y) * 0.05
 
+    // console.log('geometry', geometry.current.parent.matrix.elements)
+
     // Update the shader
     // object.current.material.uniforms.uTime.value = clock.getElapsedTime()
     // object.current.material.uniforms.mouse.value = new THREE.Vector2(
