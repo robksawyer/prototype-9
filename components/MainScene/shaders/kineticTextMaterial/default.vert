@@ -1,7 +1,6 @@
-// Default Shader
+// Kinetic Type Shader
 // Rob Sawyer
-// @see https://threejs.org/docs/#api/en/renderers/webgl/WebGLProgram
-// #define GLSLIFY 1
+// @see https://github.com/marioecg/github-universe-2020-tutorial
 
 // object.matrixWorld
 // uniform mat4 modelMatrix;
@@ -26,18 +25,16 @@
 // attribute vec3 normal;
 // attribute vec2 uv;
 
-uniform float time; 
-uniform vec2 mouse;
 varying vec2 vUv;
-varying vec3 vPosition;
-varying vec2 pixels;
-varying vec3 vNormal;
-
-float PI = 3.14159265358979323846264338;
+uniform float uTime;
 
 void main() {
-    vUv = uv;
-    vNormal = normalize(normalMatrix * normal);
-    //  calculate the position of a vertex in the vertex shader
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  vUv = uv;
+
+  float time = uTime * 1.0;
+
+  vec3 transformed = position;
+  transformed.z += sin(position.y + time);
+
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0);
 }

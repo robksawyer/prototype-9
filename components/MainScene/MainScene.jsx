@@ -35,7 +35,7 @@ import styles from './MainScene.module.css'
 import Loader from '../Loader'
 
 // Shader stack
-import './shaders/defaultMaterial'
+import './shaders/kineticTextMaterial'
 
 // Texture loading examples
 // const envMap = useCubeTexture(
@@ -80,12 +80,8 @@ const Scene = () => {
   const pointLight = useRef()
 
   // Texture loading example
-  const texture = useTexture('/3d/textures/checkerboard.jpg')
-  // const texture = useLoader(
-  //   THREE.TextureLoader,
-  //   '/3d/textures/checkerboard.jpg'
-  // )
-  texture.wrapS = texture.wrapT = THREE.RepeatWrapping
+  const texture = useTexture('/3d/textures/text.png')
+  texture.minFilter = THREE.NearestFilter
 
   useFrame(({ clock, mouse }) => {
     mesh.current.rotation.x = (Math.sin(clock.elapsedTime) * Math.PI) / 4
@@ -95,6 +91,8 @@ const Scene = () => {
     mesh.current.position.z = Math.sin(clock.elapsedTime)
     group.current.rotation.y += 0.02
 
+    // Update the shader
+    mesh.current.material.uniforms.uTime.value = clock.getElapsedTime()
     mesh.current.material.uniforms.mouse.value = new THREE.Vector2(
       mouse.x,
       mouse.y
@@ -129,21 +127,12 @@ const Scene = () => {
         distance={20}
       />
       <mesh ref={mesh} position={[0, 2, 0]} castShadow>
-        <icosahedronGeometry attach="geometry" args={[1, 1]} />
-        {/* Shader Material Example */}
-        <defaultMaterial
+        <torusGeometry attach="geometry" args={[3, 1, 100, 100]} />
+        <kineticTextMaterial
           attach="material"
           side={THREE.DoubleSide}
-          // time={0}
-          // texture={new THREE.TextureLoader().load(
-          //   '/3d/textures/checkerboard.jpg',
-          //   (texture) => {
-          //     texture.wrapS = texture.wrapT = THREE.RepeatWrapping
-          //   }
-          // )}
-          landscape={texture}
-          // resolution={new THREE.Vector4()}
-          // uvRate1={new THREE.Vector2(1, 1)}
+          uTexture={texture}
+          uTime={0}
         />
 
         {/* Standard Color Material Example */}
@@ -152,11 +141,11 @@ const Scene = () => {
         {/* Texture Material Example */}
         {/* <meshBasicMaterial attach="material" map={texture} /> */}
       </mesh>
-      <mesh rotation-x={-Math.PI / 2} receiveShadow>
+      {/* <mesh rotation-x={-Math.PI / 2} receiveShadow>
         <planeBufferGeometry args={[100, 100]} attach="geometry" />
         <shadowMaterial attach="material" opacity={0.5} />
       </mesh>
-      <gridHelper args={[30, 30, 30]} />
+      <gridHelper args={[30, 30, 30]} /> */}
     </>
   )
 }
@@ -180,10 +169,12 @@ const MainScene = (props) => {
         style={{
           width: '100vw',
           height: 'calc(100vh - 50px)',
-          background: 'blue',
+          background: 'black',
         }}
         onCreated={({ gl }) => {
           gl.physicallyCorrectLights = true
+          gl.alpha = true
+          gl.antialias = true
           // gl.toneMapping = THREE.ACESFilmicToneMapping
           gl.outputEncoding = THREE.sRGBEncoding
         }}

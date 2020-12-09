@@ -1,18 +1,22 @@
 /**
- * @file shaders/defaultMaterial/index.js
+ * @file shaders/KineticTextMaterial
  * Basic shader setup and material example.
  *
  * Usage:
  *
  *    import { extend } from 'react-three-fiber
- *    import { DefaultMaterial } from './shaders/defaultMaterial'
+ *    import { KineticTextMaterial
+ * } from './shaders/KineticTextMaterial
+ *'
  *
- *    extend({ DefaultMaterial })
+ *    extend({ KineticTextMaterial
+ * })
  *
  *    ... later in the React component
  *    <mesh>
  *      ...
- *      <defaultMaterial time={0} ... />
+ *      <KineticTextMaterial
+ * time={0} ... />
  *    </mesh>
  *
  */
@@ -22,22 +26,23 @@ import { shaderMaterial } from '@react-three/drei'
 
 import vertex from './default.vert'
 import fragment from './default.frag'
-import { Vector2 } from 'three'
 
 /**
- * DefaultMaterial
+ * KineticTextMaterial
+ *
  * @param {*} uniforms
  */
-const DefaultMaterial = shaderMaterial(
+const KineticTextMaterial = shaderMaterial(
   {
-    time: 0,
+    uTime: 0,
+    uTexture: null,
     resolution: new THREE.Vector4(),
-    landscape: null,
     mouse: new THREE.Vector2(),
-    // landscape: new THREE.TextureLoader(
-    //   '/3d/textures/checkerboard.jpg',
+    // uTexture: new THREE.TextureLoader(
+    //   '/3d/textures/text.png',
     //   (texture) => {
     //     console.log('texture', texture)
+    //     texture.minFilter = THREE.NearestFilter
     //     texture.wrapS = texture.wrapT = THREE.RepeatWrapping
     //   }
     // ),
@@ -49,6 +54,7 @@ const DefaultMaterial = shaderMaterial(
   (material) => {
     console.log('material', material)
     material.side = THREE.DoubleSide
+    material.transparent = true
     // material.wireframe = false
     // material.vertexColors = true
     // material.flatShading = true
@@ -62,4 +68,4 @@ const DefaultMaterial = shaderMaterial(
   }
 )
 
-extend({ DefaultMaterial })
+extend({ KineticTextMaterial })
