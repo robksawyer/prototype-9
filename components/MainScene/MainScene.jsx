@@ -32,6 +32,7 @@ import { VertexNormalsHelper } from 'three/examples/jsm/helpers/VertexNormalsHel
 
 import styles from './MainScene.module.css'
 
+import NurbsObject from '../NurbsObject'
 import Loader from '../Loader'
 
 // Shader stack
@@ -80,23 +81,28 @@ const Scene = () => {
   const pointLight = useRef()
 
   // Texture loading example
-  const texture = useTexture('/3d/textures/text.png')
+  const texture = useTexture('/3d/textures/future-class-title.png')
   texture.minFilter = THREE.NearestFilter
+  // texture.anisotropy = 16
+  // texture.wrapS = texture.wrapT = THREE.RepeatWrapping
 
   useFrame(({ clock, mouse }) => {
-    mesh.current.rotation.x = (Math.sin(clock.elapsedTime) * Math.PI) / 4
-    mesh.current.rotation.y = (Math.sin(clock.elapsedTime) * Math.PI) / 4
-    mesh.current.rotation.z = (Math.sin(clock.elapsedTime) * Math.PI) / 4
-    mesh.current.position.x = Math.sin(clock.elapsedTime)
-    mesh.current.position.z = Math.sin(clock.elapsedTime)
+    // Torus
+    // mesh.current.rotation.x = (Math.sin(clock.elapsedTime) * Math.PI) / 4
+    // mesh.current.rotation.y = (Math.sin(clock.elapsedTime) * Math.PI) / 4
+    // mesh.current.rotation.z = (Math.sin(clock.elapsedTime) * Math.PI) / 4
+    // mesh.current.position.x = Math.sin(clock.elapsedTime)
+    // mesh.current.position.z = Math.sin(clock.elapsedTime)
+
+    // nurbs
     group.current.rotation.y += 0.02
 
     // Update the shader
-    mesh.current.material.uniforms.uTime.value = clock.getElapsedTime()
-    mesh.current.material.uniforms.mouse.value = new THREE.Vector2(
-      mouse.x,
-      mouse.y
-    )
+    // mesh.current.material.uniforms.uTime.value = clock.getElapsedTime()
+    // mesh.current.material.uniforms.mouse.value = new THREE.Vector2(
+    //   mouse.x,
+    //   mouse.y
+    // )
   })
 
   useEffect(() => void (spotLight.current.target = mesh.current), [scene])
@@ -126,26 +132,20 @@ const Scene = () => {
         angle={0.5}
         distance={20}
       />
-      <mesh ref={mesh} position={[0, 2, 0]} castShadow>
+      {/* <mesh ref={mesh} position={[0, 2, 0]} castShadow>
         <torusGeometry attach="geometry" args={[3, 1, 100, 100]} />
         <kineticTextMaterial
           attach="material"
           side={THREE.DoubleSide}
           uTexture={texture}
-          uTime={0}
         />
-
-        {/* Standard Color Material Example */}
-        {/* <meshStandardMaterial attach="material" color="lightblue" /> */}
-
-        {/* Texture Material Example */}
-        {/* <meshBasicMaterial attach="material" map={texture} /> */}
-      </mesh>
+      </mesh> */}
+      <NurbsObject />
       {/* <mesh rotation-x={-Math.PI / 2} receiveShadow>
         <planeBufferGeometry args={[100, 100]} attach="geometry" />
         <shadowMaterial attach="material" opacity={0.5} />
-      </mesh>
-      <gridHelper args={[30, 30, 30]} /> */}
+      </mesh> */}
+      {/* <gridHelper args={[30, 30, 30]} /> */}
     </>
   )
 }
@@ -162,7 +162,13 @@ const MainScene = (props) => {
         pixelRatio={window.devicePixelRatio || 1}
         colorManagement
         shadowMap
-        camera={{ position: [-5, 5, 5] }}
+        camera={{
+          fov: 50,
+          position: [0, 150, 750],
+          aspect: window.innerWidth / window.innerHeight,
+          near: 1,
+          far: 2000,
+        }}
         className={`${styles.main_scene} ${
           styles[`main_scene__${variant}`]
         } ${className} outline-none focus:outline-none`}
@@ -179,14 +185,8 @@ const MainScene = (props) => {
           gl.outputEncoding = THREE.sRGBEncoding
         }}
       >
-        <fog attach="fog" args={['floralwhite', 0, 20]} />
-        <Suspense
-          fallback={
-            <Html center>
-              <Loader />
-            </Html>
-          }
-        >
+        <fog attach="fog" args={['floralwhite', 0, 40]} />
+        <Suspense fallback={null}>
           <Scene />
         </Suspense>
 
