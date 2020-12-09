@@ -143,14 +143,12 @@
     }
 
     /* To Reset Aspect Ratio */
-    .aspect-ratio-auto {
-      &::after {
-        display: none;
-      }
-
-      &::before {
-        display: none;
-      }
+    .aspect-ratio-auto::after {
+      display: none;
+    }
+    
+    .aspect-ratio-auto::before {
+      display: none;
     }
 
     /* Blur */
