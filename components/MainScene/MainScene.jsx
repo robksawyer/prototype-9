@@ -165,7 +165,7 @@ const MainScene = (props) => {
         camera={{ position: [-5, 5, 5] }}
         className={`${styles.main_scene} ${
           styles[`main_scene__${variant}`]
-        } ${className}`}
+        } ${className} outline-none focus:outline-none`}
         style={{
           width: '100vw',
           height: 'calc(100vh - 50px)',
