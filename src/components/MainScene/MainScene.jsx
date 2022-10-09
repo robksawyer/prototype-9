@@ -17,11 +17,12 @@ import {
 } from '@react-three/fiber';
 
 // Enabled for effects
-// import {
-//   EffectComposer,
-//   // Bloom,
-//   // ChromaticAberration,
-// } from '@react-three/postprocessing'
+import {
+  EffectComposer,
+  DepthOfField,
+  Noise,
+  Bloom,
+} from '@react-three/postprocessing';
 
 import * as THREE from 'three';
 import { useHelper, Html, useTexture, OrbitControls } from '@react-three/drei';
@@ -67,9 +68,20 @@ import './shaders/kineticTextMaterial';
 //  />
 
 // Enable for effects in the main scene
-// const Effects = () => {
-//   return <EffectComposer></EffectComposer>
-// }
+const Effects = () => {
+  return (
+    <EffectComposer>
+      <DepthOfField
+        focusDistance={0}
+        focalLength={0.02}
+        bokehScale={2}
+        height={480}
+      />
+      <Bloom luminanceThreshold={0} luminanceSmoothing={0.9} height={300} />
+      <Noise opacity={0.2} />
+    </EffectComposer>
+  );
+};
 
 const ENABLE_HELPERS = 0;
 
@@ -89,14 +101,14 @@ const generateTexture = (
   ctx.textAlign = 'center';
   ctx.fillStyle = color;
   ctx.fillText(text, cvs.width / 2, cvs.height / 2);
-  return new THREE.CanvasTexture(cvs);
+  const texture = new THREE.CanvasTexture(cvs);
+  // Fixes issue with lines between texture borders
+  texture.minFilter = THREE.NearestFilter;
+  return texture;
 };
 
 const Scene = ({ text = 'FOMOLOL' }) => {
   const mesh = useRef();
-  const { scene } = useThree();
-  const group = useRef();
-
   const spotLight = useRef();
   const pointLight = useRef();
 
@@ -125,45 +137,22 @@ const Scene = ({ text = 'FOMOLOL' }) => {
 
   // useEffect(() => void (spotLight.current.target = mesh.current), [scene])
 
-  if (ENABLE_HELPERS) {
-    useHelper(spotLight, THREE.SpotLightHelper, 'teal');
-    useHelper(pointLight, THREE.PointLightHelper, 0.5, 'hotpink');
-    useHelper(mesh, THREE.BoxHelper, '#272740');
-    useHelper(mesh, VertexNormalsHelper, 1, '#272740');
-    // useHelper(mesh, FaceNormalsHelper, 0.5, '#272740')
-  }
+  // if (ENABLE_HELPERS) {
+  //   useHelper(spotLight, THREE.SpotLightHelper, 'teal');
+  //   useHelper(pointLight, THREE.PointLightHelper, 0.5, 'hotpink');
+  //   useHelper(mesh, THREE.BoxHelper, '#272740');
+  //   useHelper(mesh, VertexNormalsHelper, 1, '#272740');
+  //   // useHelper(mesh, FaceNormalsHelper, 0.5, '#272740')
+  // }
 
   return (
     <>
-      {/* <pointLight position={[-10, 0, -20]} color="lightblue" intensity={2.5} />
-      <group ref={group}>
-        <pointLight
-          ref={pointLight}
-          color="red"
-          position={[4, 4, 0]}
-          intensity={5}
-        />
-      </group>
-      <spotLight
-        castShadow
-        position={[2, 5, 2]}
-        ref={spotLight}
-        angle={0.5}
-        distance={20}
-      /> */}
       <ambientLight color={0x808080} />
       <directionalLight color={0xffffff} intensity={1} />
-      <mesh scale={[100, 100, 100]} ref={mesh} position={[0, 2, 0]} castShadow>
+      <mesh scale={[100, 100, 100]} ref={mesh} position={[0, 0, 0]}>
         <torusGeometry args={[3, 1, 100, 100]} />
         <kineticTextMaterial side={THREE.DoubleSide} uTexture={texture} />
       </mesh>
-      {/* <NurbsLine /> */}
-      {/* <NurbsObject /> */}
-      {/* <mesh rotation-x={-Math.PI / 2} receiveShadow>
-        <planeBufferGeometry args={[100, 100]} attach="geometry" />
-        <shadowMaterial attach="material" opacity={0.5} />
-      </mesh> */}
-      {/* <gridHelper args={[30, 30, 30]} /> */}
     </>
   );
 };
@@ -176,9 +165,6 @@ const MainScene = ({ tagName: Tag, className, variant, children }) => {
     <ErrorBoundary>
       {/* https://github.com/pmndrs/react-three-fiber/blob/master/markdown/api.md#canvas */}
       <Canvas
-        pixelRatio={window.devicePixelRatio || 1}
-        colorManagement
-        shadowMap
         camera={{
           fov: 50,
           position: [0, 150, 750],
@@ -194,27 +180,21 @@ const MainScene = ({ tagName: Tag, className, variant, children }) => {
           height: 'calc(100vh - 50px)',
           background: 'black',
         }}
-        onCreated={({ gl }) => {
-          gl.physicallyCorrectLights = true;
-          gl.alpha = true;
-          gl.antialias = true;
-          // gl.toneMapping = THREE.ACESFilmicToneMapping
-          gl.outputEncoding = THREE.sRGBEncoding;
-        }}
       >
         {/* <fog attach="fog" args={['floralwhite', 0, 40]} /> */}
         <Suspense fallback={null}>
           <Scene text={text} />
         </Suspense>
 
-        {/* <Effects /> */}
+        <Effects />
         <OrbitControls />
       </Canvas>
       <div className="fixed flex items-center justify-center w-screen h-screen pointer-events-none">
         <input
           name="tVal"
-          className="pointer-events-auto border-none bg-transparent font-pp text-[100px] text-white/80 outline-none focus:border-none "
+          className="pointer-events-auto w-full border-none bg-transparent font-pp text-[200px] text-white/80 outline-none focus:border-none "
           aria-label="title"
+          value={text}
           placeholder="FOMOLOL"
           onChange={e => setText(e.target.value)}
         />
